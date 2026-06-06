@@ -1,0 +1,16 @@
+# Environment variables (contains secrets)
+.env
+
+# Virtual environment (huge, not needed)
+venv/
+__pycache__/
+*.pyc
+
+# FAISS index files (generated locally)
+faiss_index.bin
+faiss_meta.pkl
+
+# Python cache
+*.egg-info/
+dist/
+build/
