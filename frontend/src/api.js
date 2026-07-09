@@ -30,6 +30,13 @@ export const api = {
     });
   },
 
+  register: (username, password, role) =>
+  request("POST", "/auth/register", {
+    username,
+    password,
+    role,
+  }),
+
   query: (text, token) =>
     request("POST", "/query", { query: text }, token),
 

@@ -12,9 +12,33 @@ export default function Upload({ auth }) {
   const inputRef = useRef(null);
 
   const handleFile = (f) => {
-    if (f && f.type === "text/plain") setFile(f);
-    else setStatus({ type: "error", msg: "Only .txt files are supported." });
-  };
+  if (!f) return;
+
+  const allowed = [
+    ".txt",
+    ".pdf",
+    ".docx",
+    ".md",
+    ".csv",
+    ".json",
+    ".pptx",
+    ".xlsx",
+    ".log",
+  ];
+
+  const ext = "." + f.name.split(".").pop().toLowerCase();
+
+  if (allowed.includes(ext)) {
+    setFile(f);
+    setStatus(null);
+  } else {
+    setFile(null);
+    setStatus({
+      type: "error",
+      msg: "Unsupported file type.",
+    });
+  }
+};
 
   const handleDrop = (e) => {
     e.preventDefault();
@@ -39,7 +63,9 @@ export default function Upload({ auth }) {
     <div style={styles.container}>
       <div style={styles.header}>
         <h2 style={styles.h2}>Upload Document</h2>
-        <p style={styles.sub}>Index a .txt file into the secure knowledge base</p>
+          <p style={styles.sub}>
+            Upload and index documents into the secure knowledge base
+          </p>
       </div>
 
       <div style={styles.body}>
@@ -58,7 +84,7 @@ export default function Upload({ auth }) {
             <input
               ref={inputRef}
               type="file"
-              accept=".txt"
+              accept=".txt,.pdf,.docx,.md,.csv,.json,.pptx,.xlsx,.log"
               style={{ display: "none" }}
               onChange={(e) => handleFile(e.target.files[0])}
             />
@@ -73,7 +99,7 @@ export default function Upload({ auth }) {
             ) : (
               <>
                 <p style={{ fontSize: "2.5rem" }}>📁</p>
-                <p style={{ color: "#94a3b8", fontWeight: 600 }}>Drop a .txt file here</p>
+                <p style={{ color: "#94a3b8", fontWeight: 600 }}>Drop a document here</p>
                 <p style={{ color: "#64748b", fontSize: "0.8rem" }}>or click to browse</p>
               </>
             )}

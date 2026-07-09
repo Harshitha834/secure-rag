@@ -6,6 +6,13 @@ from jose import JWTError, jwt
 import bcrypt
 import os
 from dotenv import load_dotenv
+from sqlalchemy import Integer, LargeBinary, create_engine, Column, String
+from sqlalchemy.orm import declarative_base,sessionmaker
+
+db_url = os.getenv("DATABASE_URL", "sqlite:///./users.db")
+engine = create_engine(db_url)
+
+Base = declarative_base()
 
 load_dotenv()
 
@@ -21,17 +28,33 @@ def _hash(pw: str) -> bytes:
 def verify_password(plain: str, hashed: bytes) -> bool:
     return bcrypt.checkpw(plain.encode(), hashed)
 
-USERS_DB = {
-    "alice": {"username": "alice", "password": _hash("alice123"), "role": "employee"},
-    "bob":   {"username": "bob",   "password": _hash("bob123"),   "role": "hr"},
-    "carol": {"username": "carol", "password": _hash("carol123"), "role": "admin"},
-}
+
+class User(Base):
+    __tablename__ = "users"
+
+    id = Column(Integer, primary_key=True, index=True)
+    username = Column(String, unique=True, index=True)
+    password = Column(LargeBinary)
+    role = Column(String)
+
+Base.metadata.create_all(bind=engine)
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+session = SessionLocal()
+
+def register_user(username: str, password: str, role: str) -> dict:
+    if session.query(User).filter_by(username=username).first():
+        raise HTTPException(status_code=400, detail="Username already registered")
+    hashed_pw = _hash(password)
+    user = User(username=username, password=hashed_pw, role=role)
+    session.add(user)
+    session.commit()
+    return {"username": username, "role": role}
 
 def authenticate_user(username: str, password: str) -> Optional[dict]:
-    user = USERS_DB.get(username)
-    if user and verify_password(password, user["password"]):
-        return user
-    return None
+    user = session.query(User).filter_by(username=username).first()
+    if not user or not verify_password(password, user.password):
+        return None
+    return {"username": user.username, "role": user.role}
 
 def create_access_token(data: dict) -> str:
     to_encode = data.copy()
@@ -54,7 +77,7 @@ async def get_current_user(token: str = Depends(oauth2_scheme)) -> dict:
     except JWTError:
         raise credentials_exception
 
-    user = USERS_DB.get(username)
+    user = session.query(User).filter_by(username=username).first()
     if user is None:
         raise credentials_exception
     return {"username": username, "role": role}

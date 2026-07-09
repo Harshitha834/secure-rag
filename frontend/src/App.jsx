@@ -1,6 +1,8 @@
 import { useState } from "react";
 import Login from "./components/Login";
 import Dashboard from "./components/Dashboard";
+import Register from "./components/Register";
+
 
 export default function App() {
   const [auth, setAuth] = useState(() => {
@@ -9,6 +11,11 @@ export default function App() {
     const user  = localStorage.getItem("rag_user");
     return token ? { token, role, username: user } : null;
   });
+
+  const [showRegister, setShowRegister] = useState(false);
+
+  const toggleForm = () => setShowRegister((prev) => !prev);
+
 
   const handleLogin = (data) => {
     localStorage.setItem("rag_token", data.access_token);
@@ -22,7 +29,19 @@ export default function App() {
     setAuth(null);
   };
 
-  return auth
-    ? <Dashboard auth={auth} onLogout={handleLogout} />
-    : <Login onLogin={handleLogin} />;
+  if (auth) {
+  return <Dashboard auth={auth} onLogout={handleLogout} />;
+}
+
+  return showRegister ? (
+    <Register
+      onLogin={handleLogin}
+      onToggle={toggleForm}
+    />
+  ) : (
+    <Login
+      onLogin={handleLogin}
+      onToggle={toggleForm}
+    />
+  );
 }

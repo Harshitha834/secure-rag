@@ -7,7 +7,7 @@ const DEMO_ACCOUNTS = [
   { user: "carol", pass: "carol123", role: "admin",    color: "#f59e0b" },
 ];
 
-export default function Login({ onLogin }) {
+export default function Login({ onLogin, onToggle }) {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError]     = useState("");
@@ -70,6 +70,15 @@ export default function Login({ onLogin }) {
           >
             {loading ? "Signing in…" : "Sign In"}
           </button>
+          <p>
+            Don't have an account?{" "}
+            <span
+              style={{ color: "blue", cursor: "pointer" }}
+              onClick={onToggle}
+            >
+              Register
+            </span>
+          </p>
         </div>
 
         {/* Demo accounts */}
