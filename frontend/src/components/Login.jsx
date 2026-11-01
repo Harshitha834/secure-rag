@@ -2,9 +2,9 @@ import { useState } from "react";
 import { api } from "../api";
 
 const DEMO_ACCOUNTS = [
-  { user: "alice", pass: "alice123", role: "employee", color: "#22c55e" },
-  { user: "bob",   pass: "bob123",   role: "hr",       color: "#3b82f6" },
-  { user: "carol", pass: "carol123", role: "admin",    color: "#f59e0b" },
+  { user: "harshi", pass: "12345", role: "employee", color: "#22c55e" },
+  { user: "harshitha",   pass: "12345",   role: "hr",       color: "#3b82f6" },
+  { user: "harsh", pass: "12345", role: "admin",    color: "#f59e0b" },
 ];
 
 export default function Login({ onLogin, onToggle }) {

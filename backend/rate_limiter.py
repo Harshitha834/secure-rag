@@ -28,7 +28,7 @@ class RateLimiter:
 
 
 class UploadRateLimiter:
-    MAX_REQUESTS = 5
+    MAX_REQUESTS = 50
     WINDOW_SECONDS = 3600
 
     user_requests = defaultdict(list)

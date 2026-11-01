@@ -24,7 +24,8 @@ app.add_middleware(
 )
 
 rag = RAGEngine()
-
+# In-memory conversation history per user (resets on server restart)
+conversation_history: dict = {}
 # ── Models ──────────────────────────────────────────────────────────────────
 
 class QueryRequest(BaseModel):
@@ -185,7 +186,27 @@ async def query(req: QueryRequest, current_user: dict = Depends(get_current_user
             security_alert=f"Prompt injection detected: {injection}",
         )
 
-    answer, sources = rag.query(req.query, current_user["role"])
+    # Get or create history for this user
+    username = current_user["username"]
+    if username not in conversation_history:
+        conversation_history[username] = []
+
+    history = conversation_history[username]
+
+    # Query with history
+    answer, sources = rag.query(
+        query_text=req.query,
+        user_name=current_user["username"],
+        user_role=current_user["role"],
+        history=history
+    )
+
+    # Update history (keep last 10 turns to avoid memory bloat)
+    history.append({"role": "user", "content": req.query})
+    history.append({"role": "assistant", "content": answer})
+    if len(history) > 20:
+        conversation_history[username] = history[-20:]
+
     AuditLogger.log_event(
     event_type="QUERY",
     username=current_user["username"],
@@ -196,6 +217,11 @@ async def query(req: QueryRequest, current_user: dict = Depends(get_current_user
     }
 )
     return QueryResponse(answer=answer, sources=sources)
+
+@app.post("/conversation/clear")
+async def clear_history(current_user: dict = Depends(get_current_user)):
+    conversation_history[current_user["username"]] = []
+    return {"message": "Conversation history cleared"}
 
 # ── Health ────────────────────────────────────────────────────────────────────
 
