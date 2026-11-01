@@ -256,3 +256,22 @@ Ensure backend is on port 8000 and frontend on port 3000. Both must be running.
 ```bash
 ollama pull phi3:mini
 ```
+
+## Project Highlights
+
+- Role-Based Access Control (RBAC) for document security.
+- Retrieval-Augmented Generation (RAG) for context-based answers.
+- Prompt injection detection for safer interactions.
+- Supports PDF, DOCX, TXT, CSV, JSON, PPTX, and XLSX files.
+- React-based interface for chatting and document management.
+
+## Screenshots
+
+### Login Interface
+![Login Interface](screenshots/login.png)
+
+### Chat Interface
+![Chat Interface](screenshots/chat_interface.png)
+
+### Upload Interface
+![Upload Interface](screenshots/upload_interface.png)
